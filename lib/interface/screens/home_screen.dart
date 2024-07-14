@@ -65,6 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
               buildRotatedTextRailDestination('Scan Docs', 1, _selectedIndex),
               buildRotatedTextRailDestination('About Us', 2, _selectedIndex),
             ],
+            minWidth: 0.1,
           ),
           Expanded(
             child: [
