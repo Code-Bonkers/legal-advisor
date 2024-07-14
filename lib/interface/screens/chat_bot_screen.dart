@@ -1,9 +1,11 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import '../custom/widgets/chat_message_widget.dart';
 import '../custom/widgets/send_message_field_widget.dart';
 
 class ChatBotScreen extends StatefulWidget {
-  const ChatBotScreen({Key? key}) : super(key: key);
+  const ChatBotScreen({super.key});
 
   @override
   _ChatBotScreenState createState() => _ChatBotScreenState();
