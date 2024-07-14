@@ -15,7 +15,7 @@ NavigationRailDestination buildRotatedTextRailDestination(
           text,
           style: GoogleFonts.raleway(
             color: selectedIndex == index ? kGrey : Colors.white,
-            backgroundColor: selectedIndex == index ? Colors.white : kGrey,
+            backgroundColor: selectedIndex == index ? Colors.white : Colors.transparent,
           ),
         ),
       ),

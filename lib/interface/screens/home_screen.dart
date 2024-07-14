@@ -49,10 +49,12 @@ class _HomeScreenState extends State<HomeScreen> {
               color: kGrey,
               backgroundColor: Colors.white,
               fontSize: 14,
+              fontWeight: FontWeight.bold,
             ),
             unselectedLabelTextStyle: GoogleFonts.raleway(
               color: Colors.white,
               fontSize: 14,
+              fontWeight: FontWeight.bold,
             ),
             indicatorColor: Colors.white,
             indicatorShape: RotatedRectangleBorder(
