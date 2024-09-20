@@ -25,7 +25,9 @@ class GeminiService {
       ),
     );
 
-    final response2 = await model.generateContent([prompt]);
+    final response2 = await model.generateContent([prompt]); //TODO: un-prompted response
+
+    //TODO: Change response if possible
 
     final response = await model.generateContent([
       Content('user', [

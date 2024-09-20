@@ -66,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             destinations: [
               buildRotatedTextRailDestination('ChatBot', 0, _selectedIndex),
-              buildRotatedTextRailDestination('Upload Docs', 1, _selectedIndex),
+              buildRotatedTextRailDestination('Upload', 1, _selectedIndex),
               buildRotatedTextRailDestination('About Us', 2, _selectedIndex),
             ],
             minWidth: 0.1,
