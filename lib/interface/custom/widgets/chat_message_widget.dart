@@ -29,6 +29,7 @@ class ChatMessage extends StatelessWidget {
             bottomRight: isMe ? const Radius.circular(0) : const Radius.circular(24.0),
           ),
         ),
+        constraints: BoxConstraints(maxWidth:MediaQuery.of(context).size.width * 0.66),
         child: Text(
           message,
           style: GoogleFonts.raleway(
