@@ -7,8 +7,8 @@ import 'package:flutter_gemini/flutter_gemini.dart';
 
 void main() async {
   await dotenv.load(fileName: 'lib/assets/.env');
-  final String API_KEY = dotenv.env['API_KEY']!;
-  Gemini.init(apiKey: API_KEY);
+  final String apiKey = dotenv.env['API_KEY']!;
+  Gemini.init(apiKey: apiKey);
   runApp(const MyApp());
 }
 

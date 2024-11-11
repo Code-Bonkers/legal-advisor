@@ -4,10 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:myapp/interface/custom/widgets/chat_message_widget.dart';
-import 'package:syncfusion_flutter_pdf/pdf.dart';  // For PDF text extraction
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-import '../../services/gemini_service.dart';
+import 'package:myapp/services/gemini_service.dart';
+import 'package:syncfusion_flutter_pdf/pdf.dart';
 
 class ScanDocumentsScreen extends StatefulWidget {
   const ScanDocumentsScreen({super.key});
@@ -28,21 +26,35 @@ class _ScanDocumentsScreenState extends State<ScanDocumentsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (isLoading)
-                const CircularProgressIndicator(),
-              if (!isLoading && geminiResult.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ChatMessage(message: geminiResult, isMe: false)
-                ),
-            ],
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (!isLoading && fileDirectory != "No file selected")
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ChatMessage(
+                        message: fileDirectory.split('/').last,
+                        isMe: true,
+                      ),
+                    ),
+                  if (!isLoading && geminiResult.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ChatMessage(message: geminiResult, isMe: false),
+                    ),
+                ],
+              ),
+            ),
           ),
-        ),
+          if (isLoading)
+            const Center(
+              child: CircularProgressIndicator(),
+            ),
+        ],
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -64,6 +76,14 @@ class _ScanDocumentsScreenState extends State<ScanDocumentsScreen> {
               ),
             ),
             TextButton(
+              style: TextButton.styleFrom(
+                side: const BorderSide(
+                    color: Colors.deepPurple,
+                    width: 1.5), // Border color and width
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24), // Rounded corners
+                ),
+              ),
               onPressed: () {
                 setState(() {
                   fileDirectory = "No file selected";
@@ -89,21 +109,16 @@ class _ScanDocumentsScreenState extends State<ScanDocumentsScreen> {
     if (result != null) {
       File file = File(result.files.single.path!);
 
-      setState(() {
-        fileDirectory = file.path;
-        isLoading = true;
-      });
+      await _withLoading(() async {
+        setState(() {
+          fileDirectory = file.path;
+        });
 
-      // Extract text from PDF
-      await _extractText(file.path);
+        await _extractText(file.path);
 
-      if (haveText) {
-        // Send extracted text to Gemini API
-        await _generateGeminiContent(extractedText);
-      }
-
-      setState(() {
-        isLoading = false;
+        if (haveText) {
+          await _generateGeminiContent(extractedText);
+        }
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -114,15 +129,12 @@ class _ScanDocumentsScreenState extends State<ScanDocumentsScreen> {
 
   Future<void> _extractText(String filePath) async {
     try {
-      // Read file from the file system
       File file = File(filePath);
       final Uint8List fileBytes = await file.readAsBytes();
 
-      // Load the PDF document
-      PdfDocument _pdfDocument = PdfDocument(inputBytes: fileBytes);
+      PdfDocument pdfDocument = PdfDocument(inputBytes: fileBytes);
 
-      // Extract text
-      PdfTextExtractor extractor = PdfTextExtractor(_pdfDocument);
+      PdfTextExtractor extractor = PdfTextExtractor(pdfDocument);
       String text = extractor.extractText();
 
       setState(() {
@@ -144,11 +156,11 @@ class _ScanDocumentsScreenState extends State<ScanDocumentsScreen> {
 
   Future<void> _generateGeminiContent(String promptText) async {
     try {
-      // Create content object (modify this as per your model's expected input)
-      final String prompt = promptText;
+      final String prompt =
+          "$promptText. Return following details: summarize the important points of the legal document in 250 words in a simplified manner. point out high priority clauses of document. point out unclear clauses. point out potential loopholes in the document. Identify any privacy-related concerns and potential loopholes in the document. Provide a legal analysis of compliance with GDPR regulations. Provide any unauthorized activity that taked place without giving permission.";
 
-      // Call the Gemini API to generate content
-      final result = await _geminiService.generateContent(Content('user',[TextPart(prompt)]));
+      final result = await _geminiService
+          .generateContent(Content('user', [TextPart(prompt)]));
 
       setState(() {
         geminiResult = result ?? "No response from Gemini.";
@@ -158,5 +170,11 @@ class _ScanDocumentsScreenState extends State<ScanDocumentsScreen> {
         geminiResult = "Error generating content: $e";
       });
     }
+  }
+
+  Future<void> _withLoading(Future<void> Function() action) async {
+    setState(() => isLoading = true);
+    await action();
+    setState(() => isLoading = false);
   }
 }

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class ExpandableTextWidget extends StatelessWidget {
   final String data;
 
-  const ExpandableTextWidget({Key? key, required this.data}) : super(key: key);
+  const ExpandableTextWidget({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
