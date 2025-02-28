@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -157,16 +158,17 @@ class _ScanDocumentsScreenState extends State<ScanDocumentsScreen> {
   Future<void> _generateGeminiContent(String promptText) async {
     try {
       final String prompt =
-          "$promptText. Return following details: summarize the important points of the legal document in 250 words in a simplified manner. point out high priority clauses of document. point out unclear clauses. point out potential loopholes in the document. Identify any privacy-related concerns and potential loopholes in the document. Provide a legal analysis of compliance with GDPR regulations. Provide any unauthorized activity that taked place without giving permission.";
+          "$promptText. Return following details: summarize the important points of the legal document in 250 words in a simplified, laymen manner. point out high priority clauses of document. point out unclear clauses. point out potential loopholes in the document. Identify any privacy-related concerns and potential loopholes in the document. Provide a legal analysis of compliance with GDPR regulations. Provide any unauthorized activity that taked place without giving permission.";
 
       final result = await _geminiService
-          .generateContent(Content('user', [TextPart(prompt)]));
+          .generateContentWithApi(prompt);
 
       setState(() {
         geminiResult = result ?? "No response from Gemini.";
       });
     } catch (e) {
       setState(() {
+        log("$e");
         geminiResult = "Error generating content: $e";
       });
     }

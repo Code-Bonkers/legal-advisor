@@ -5,6 +5,8 @@ import 'package:myapp/core/constants.dart';
 import 'package:myapp/interface/screens/home_screen.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 
+import 'interface/screens/login_screen.dart';
+
 void main() async {
   await dotenv.load(fileName: 'lib/assets/.env');
   final String apiKey = dotenv.env['API_KEY']!;
@@ -29,7 +31,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
       ),
-      home: const HomeScreen(),
+      home: const LoginScreen(),
     );
   }
 }

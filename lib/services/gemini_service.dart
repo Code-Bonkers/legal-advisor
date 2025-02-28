@@ -1,7 +1,10 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+
+import 'package:http/http.dart' as http;
 
 class GeminiService {
   GeminiService();
@@ -14,7 +17,7 @@ class GeminiService {
     }
 
     final model = GenerativeModel(
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.0-flash',
       apiKey: API_KEY,
       generationConfig: GenerationConfig(
         temperature: 0.3,
@@ -72,5 +75,42 @@ class GeminiService {
 
     log(response2.text!);
     return response2.text;
+  }
+
+  Future<String?> generateContentWithApi(String prompt) async{
+    final String BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}";
+    try{
+      final response = await http.post(
+        Uri.parse(BASE_URL),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          "contents":[
+            {
+              "parts":[
+                {"text": prompt}
+              ]
+            }
+          ]
+        })
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        if (data["candidates"] != null &&
+            data["candidates"].isNotEmpty &&
+            data["candidates"][0]["content"] != null &&
+            data["candidates"][0]["content"]["parts"] != null &&
+            data["candidates"][0]["content"]["parts"].isNotEmpty) {
+          return data["candidates"][0]["content"]["parts"][0]["text"];
+        } else {
+          return "No valid response from Gemini.";
+        }
+      } else {
+        return "Error: ${response.statusCode} - ${response.body}";
+      }
+    } catch(e){
+      return "Error generating content: $e";
+    }
   }
 }
